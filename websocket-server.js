@@ -97,6 +97,8 @@ wss.on('connection', (conn, req) => {
       switch (messageType) {
         case messageSync:
           encoding.writeVarUint(encoder, messageSync);
+          // conn을 origin으로 전달하여 업데이트 출처 추적
+          syncProtocol.readSyncMessage(decoder, encoder, doc, conn);
 
           // 현재 클라이언트에게 응답 전송
           if (encoding.length(encoder) > 1) {
