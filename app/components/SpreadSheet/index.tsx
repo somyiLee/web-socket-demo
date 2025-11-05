@@ -178,6 +178,7 @@ export default function SpreadSheet() {
           ) : (
             <span className='text-yellow-600'>● 연결 중...</span>
           )}
+          <span className='ml-4 text-gray-600'>{process.env.NEXT_PUBLIC_WS_URL}</span>
           <span className='ml-4 text-gray-600'>Room: spreadsheet-demo-room (로컬 서버)</span>
         </div>
 
