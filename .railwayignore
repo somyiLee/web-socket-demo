@@ -1,0 +1,22 @@
+# Next.js 관련 파일 제외
+.next/
+app/
+public/
+
+# 개발 관련 파일
+.env.local
+.env.example
+
+# 문서
+README.md
+DEPLOYMENT.md
+DEPLOYMENT_CHECKLIST.md
+
+# 기타 Next.js 설정
+next.config.ts
+next-env.d.ts
+tailwindcss.config.ts
+postcss.config.mjs
+eslint.config.mjs
+tsconfig.json
+
