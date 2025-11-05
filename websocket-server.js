@@ -29,16 +29,11 @@ const getYDoc = (docname, gc = true) =>
       conns: new Map(),
     };
 
-    console.log(`📄 새 문서 생성: ${docname}`);
     return docData;
   });
 
 // WebSocket 서버 생성
 const wss = new WebSocketServer({ port: PORT });
-
-console.log(`\n✅ Y-WebSocket 서버가 실행 중입니다!`);
-console.log(`📡 포트: ${PORT}`);
-console.log(`🔗 연결 URL: ws://localhost:${PORT}\n`);
 
 wss.on('connection', (conn, req) => {
   // URL에서 문서 이름 추출
@@ -47,9 +42,6 @@ wss.on('connection', (conn, req) => {
 
   // 연결 저장
   conns.set(conn, new Set());
-
-  console.log(`🔌 새 클라이언트 연결 - 방: ${docname}, 총 연결: ${conns.size}`);
-
   let closed = false;
 
   /**
@@ -75,7 +67,6 @@ wss.on('connection', (conn, req) => {
     const message = encoding.toUint8Array(encoder);
 
     // 모든 클라이언트에게 브로드캐스트 (origin이 WebSocket이면 그것만 제외)
-    let broadcastCount = 0;
     conns.forEach((_, c) => {
       if (c !== origin && c.readyState === 1) {
         c.send(message, (err) => {
@@ -83,15 +74,8 @@ wss.on('connection', (conn, req) => {
             c.close();
           }
         });
-        broadcastCount++;
       }
     });
-
-    if (broadcastCount > 0) {
-      console.log(
-        `📤 업데이트 브로드캐스트: ${broadcastCount}명의 클라이언트에게 전송 (방: ${docname})`
-      );
-    }
   };
 
   // 문서 업데이트 이벤트 리스닝
@@ -157,8 +141,6 @@ wss.on('connection', (conn, req) => {
       closed = true;
       conns.delete(conn);
 
-      console.log(`🔌 클라이언트 연결 종료 - 방: ${docname}, 남은 연결: ${conns.size}`);
-
       // 이벤트 리스너 제거
       doc.off('update', updateHandler);
       awareness.off('update', awarenessChangeHandler);
@@ -168,7 +150,6 @@ wss.on('connection', (conn, req) => {
 
       // 연결이 없으면 문서 제거
       if (conns.size === 0) {
-        console.log(`📄 문서 제거: ${docname} (활성 연결 없음)`);
         docs.delete(docname);
       }
     }
@@ -217,17 +198,13 @@ const broadcastMessage = (docname, message, excludeConn = null) => {
 
 // 정리
 process.on('SIGINT', () => {
-  console.log('\n\n🛑 서버를 종료합니다...');
   wss.close(() => {
-    console.log('✅ WebSocket 서버가 종료되었습니다.\n');
     process.exit(0);
   });
 });
 
 process.on('SIGTERM', () => {
-  console.log('\n\n🛑 서버를 종료합니다...');
   wss.close(() => {
-    console.log('✅ WebSocket 서버가 종료되었습니다.\n');
     process.exit(0);
   });
 });
