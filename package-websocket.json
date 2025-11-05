@@ -1,0 +1,19 @@
+{
+  "name": "yjs-websocket-server",
+  "version": "1.0.0",
+  "description": "Yjs WebSocket server for collaborative spreadsheet",
+  "type": "module",
+  "main": "websocket-server.js",
+  "scripts": {
+    "start": "node websocket-server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.1",
+    "yjs": "^13.6.27",
+    "y-protocols": "^1.0.6",
+    "lib0": "^0.2.114"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -31,8 +31,20 @@ npm install
 
 ### 2. 개발 서버 실행
 
+Next.js와 WebSocket 서버를 동시에 실행:
+
 ```bash
+npm run dev:all
+```
+
+또는 각각 별도 터미널에서 실행:
+
+```bash
+# 터미널 1 - Next.js
 npm run dev
+
+# 터미널 2 - WebSocket 서버
+npm run ws-server
 ```
 
 ### 3. 브라우저에서 열기
@@ -42,6 +54,31 @@ npm run dev
 ```
 http://localhost:3000
 ```
+
+## 🌐 배포 (Vercel + Railway)
+
+Vercel은 serverless 환경이라 WebSocket 서버를 호스팅할 수 없습니다.  
+따라서 WebSocket 서버를 별도로 배포해야 합니다.
+
+### 빠른 배포 가이드
+
+1. **Railway에 WebSocket 서버 배포**
+
+   - [Railway.app](https://railway.app)에 접속
+   - 이 저장소를 연결하고 배포
+   - WebSocket URL 확인 (예: `wss://your-project.railway.app`)
+
+2. **Vercel에 환경 변수 설정**
+
+   - Vercel 대시보드 > Settings > Environment Variables
+   - `NEXT_PUBLIC_WS_URL` = `wss://your-project.railway.app`
+   - 프로젝트 재배포
+
+3. **테스트**
+   - 일반 모드와 시크릿 모드에서 각각 접속
+   - 실시간 동기화 확인
+
+📖 **자세한 배포 가이드**: [DEPLOYMENT.md](./DEPLOYMENT.md) 참고
 
 ## 🔍 작동 원리
 

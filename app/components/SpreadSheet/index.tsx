@@ -60,9 +60,10 @@ export default function SpreadSheet() {
     const map = doc.getMap<string>('spreadsheet');
     yMapRef.current = map;
 
-    // WebSocket Provider 설정 (로컬 서버 사용)
-    // 'spreadsheet-demo-room'을 원하는 room 이름으로 변경 가능
-    const wsProvider = new WebsocketProvider('ws://localhost:1234', 'spreadsheet-demo-room', doc);
+    // WebSocket Provider 설정
+    // 개발 환경: localhost, 프로덕션: 환경 변수에서 가져옴
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:1234';
+    const wsProvider = new WebsocketProvider(wsUrl, 'spreadsheet-demo-room', doc);
 
     // Awareness 설정
     const awareness = wsProvider.awareness;

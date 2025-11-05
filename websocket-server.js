@@ -6,7 +6,7 @@ import * as encoding from 'lib0/encoding';
 import * as decoding from 'lib0/decoding';
 import * as map from 'lib0/map';
 
-const PORT = process.env.WS_PORT || 1234;
+const PORT = process.env.PORT || process.env.WS_PORT || 1234;
 
 // 문서와 awareness 저장소
 const docs = new Map();
@@ -34,6 +34,10 @@ const getYDoc = (docname, gc = true) =>
 
 // WebSocket 서버 생성
 const wss = new WebSocketServer({ port: PORT });
+
+console.log(`\n✅ Y-WebSocket 서버가 실행 중입니다!`);
+console.log(`📡 포트: ${PORT}`);
+console.log(`🔗 연결 URL: ws://localhost:${PORT}\n`);
 
 wss.on('connection', (conn, req) => {
   // URL에서 문서 이름 추출

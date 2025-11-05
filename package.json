@@ -8,7 +8,8 @@
     "ws-server": "node websocket-server.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run ws-server\"",
     "build": "next build",
-    "start": "NODE_ENV=production node server.js",
+    "start": "node websocket-server.js",
+    "start:next": "NODE_ENV=production node server.js",
     "lint": "eslint"
   },
   "dependencies": {
