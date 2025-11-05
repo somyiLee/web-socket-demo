@@ -5,15 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "ws-server": "node websocket-server.js",
+    "dev:all": "concurrently \"npm run dev\" \"npm run ws-server\"",
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/ws": "^8.18.1",
     "lib0": "^0.2.114",
     "next": "16.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "ws": "^8.18.3",
+    "y-protocols": "^1.0.6",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.27"
   },
@@ -22,6 +27,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "tailwindcss": "^4",

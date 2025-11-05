@@ -60,9 +60,9 @@ export default function SpreadSheet() {
     const map = doc.getMap<string>('spreadsheet');
     yMapRef.current = map;
 
-    // WebSocket Provider 설정 (공개 Yjs 서버 사용)
+    // WebSocket Provider 설정 (로컬 서버 사용)
     // 'spreadsheet-demo-room'을 원하는 room 이름으로 변경 가능
-    const wsProvider = new WebsocketProvider('wss://demos.yjs.dev', 'spreadsheet-demo-room', doc);
+    const wsProvider = new WebsocketProvider('ws://localhost:1234', 'spreadsheet-demo-room', doc);
 
     // Awareness 설정
     const awareness = wsProvider.awareness;
@@ -177,7 +177,7 @@ export default function SpreadSheet() {
           ) : (
             <span className='text-yellow-600'>● 연결 중...</span>
           )}
-          <span className='ml-4 text-gray-600'>Room: spreadsheet-demo-room</span>
+          <span className='ml-4 text-gray-600'>Room: spreadsheet-demo-room (로컬 서버)</span>
         </div>
 
         {/* 스프레드시트 그리드 */}
