@@ -4,21 +4,29 @@ Next.js, WebSocket, Yjs를 사용한 실시간 협업 스프레드시트 데모�
 
 ## 🚀 기술 스택
 
+### Frontend
+
 - **Next.js 16** - React 프레임워크
-- **Yjs** - CRDT 기반 실시간 협업 라이브러리
-- **Socket.io** - WebSocket 실시간 통신
 - **TypeScript** - 타입 안정성
 - **Tailwind CSS** - 스타일링
+
+### 실시간 협업
+
+- **Yjs** - CRDT 기반 실시간 협업 라이브러리 (충돌 없는 데이터 동기화)
+- **y-websocket** - 클라이언트 WebSocket Provider (브라우저 ↔ 서버 연결)
+
+### WebSocket 서버
+
+- **ws** - Node.js WebSocket 서버 라이브러리 (네트워크 통신)
+- **y-protocols** - Yjs 동기화 프로토콜 (Yjs 메시지 해석 및 변환)
+
+### 개발 도구
+
+- **concurrently** - 여러 명령어 동시 실행 (Next.js + WebSocket 서버)
 
 ## 📋 기능
 
 - ✅ 실시간 다중 사용자 동시 편집
-- ✅ 충돌 없는 데이터 동기화 (CRDT)
-- ✅ WebSocket을 통한 빠른 통신
-- ✅ 20x10 스프레드시트 그리드
-- ✅ 연결 상태 표시
-- ✅ **사용자별 색상 구분** - 각 사용자에게 고유한 색상 할당
-- ✅ **실시간 편집 중 표시** - 다른 사용자가 편집 중인 셀을 실시간으로 표시
 - ✅ **사용자 Awareness** - 누가 어떤 셀을 편집하고 있는지 실시간 확인
 
 ## 🛠️ 설치 및 실행
@@ -58,48 +66,57 @@ http://localhost:3000
 ## 🌐 배포 (Vercel + Railway)
 
 Vercel은 serverless 환경이라 WebSocket 서버를 호스팅할 수 없습니다.  
-따라서 WebSocket 서버를 별도로 배포해야 합니다.
+따라서 WebSocket 서버를 별도로 배포되어 있습니다.
+main branch에 push 시 자동으로 두 서버가 build됩니다.
 
-### 빠른 배포 가이드
+### 🔗 배포된 서비스
 
-1. **Railway에 WebSocket 서버 배포**
+- **🌐 웹사이트 (Vercel)**: [https://web-socket-demo-seven.vercel.app/](https://web-socket-demo-seven.vercel.app/)
+- **🔌 WebSocket 서버 (Railway)**: [https://web-socket-demo-production.up.railway.app/](https://web-socket-demo-production.up.railway.app/)
 
-   - [Railway.app](https://railway.app)에 접속
-   - 이 저장소를 연결하고 배포
-   - WebSocket URL 확인 (예: `wss://your-project.railway.app`)
-
-2. **Vercel에 환경 변수 설정**
-
-   - Vercel 대시보드 > Settings > Environment Variables
-   - `NEXT_PUBLIC_WS_URL` = `wss://your-project.railway.app`
-   - 프로젝트 재배포
-
-3. **테스트**
-   - 일반 모드와 시크릿 모드에서 각각 접속
-   - 실시간 동기화 확인
-
-📖 **자세한 배포 가이드**: [DEPLOYMENT.md](./DEPLOYMENT.md) 참고
+여러 탭이나 브라우저를 열어서 실시간 협업을 테스트해보세요! 🚀
 
 ## 🔍 작동 원리
 
-### Yjs (CRDT)
+### 1. Yjs (CRDT 엔진)
 
-- **Conflict-free Replicated Data Type**을 사용하여 충돌 없이 데이터를 동기화합니다
-- 네트워크가 불안정하거나 오프라인 상태에서도 작동합니다
-- 각 클라이언트가 로컬에서 편집하고, 변경사항이 자동으로 병합됩니다
+- **Conflict-free Replicated Data Type**을 사용하여 충돌 없이 데이터를 동기화
+- 여러 사용자가 동시에 편집해도 자동으로 병합
+- 각 클라이언트가 로컬에서 편집하고, 변경사항이 자동으로 동기화
 
-### WebSocket (Socket.io)
+### 2. WebSocket 통신
 
-- 실시간 양방향 통신을 제공합니다
-- 서버가 모든 클라이언트 간의 업데이트를 중계합니다
-- 연결이 끊어지면 자동으로 재연결을 시도합니다
+- **클라이언트**: `y-websocket` Provider가 브라우저와 서버 연결
+- **서버**: `ws` 라이브러리로 WebSocket 서버 구축
+- **프로토콜**: `y-protocols`로 Yjs 메시지 해석 및 변환
 
-### 아키텍처
+### 3. Awareness (실시간 상태 공유)
+
+- 다른 사용자의 편집 중인 셀을 실시간으로 표시
+- 각 사용자에게 고유한 이름과 색상 할당
+- 연결 끊으면 자동으로 사라지는 일시적 상태
+
+### 📊 아키텍처 다이어그램
 
 ```
-[클라이언트 A] ←→ [WebSocket 서버] ←→ [클라이언트 B]
-      ↓                    ↓                    ↓
-   Yjs Doc            Yjs Doc (메모리)       Yjs Doc
+┌──────────────────┐         WebSocket (ws)         ┌──────────────────┐
+│    Client A      │◄──────────────────────────────►│    Client B      │
+│                  │                                │                  │
+│  ┌────────────┐  │    ┌─────────────────────┐     │  ┌────────────┐  │
+│  │ React UI   │  │    │  WebSocket Server   │     │  │ React UI   │  │
+│  └─────┬──────┘  │    │                     │     │  └─────┬──────┘  │
+│        │         │    │  ┌───────────────┐  │     │        │         │
+│  ┌─────▼──────┐  │    │  │ ws            │  │     │  ┌─────▼──────┐  │
+│  │ Yjs Doc    │◄─┼────┼──┤ y-protocols   │◄─┼─────┼─►│ Yjs Doc    │  │
+│  │ (Map)      │  │    │  │ Yjs Doc       │  │     │  │ (Map)      │  │
+│  └────────────┘  │    │  └───────────────┘  │     │  └────────────┘  │
+│                  │    │                     │     │                  │
+│  Provider:       │    │  Room: 'demo-room'  │     │  Provider:       │
+│  y-websocket     │    │                     │     │  y-websocket     │
+└──────────────────┘    └─────────────────────┘     └──────────────────┘
+
+    셀 데이터 동기화              서버가 중계                셀 데이터 동기화
+    + Awareness 공유                                     + Awareness 수신
 ```
 
 ## 📂 프로젝트 구조
@@ -108,37 +125,52 @@ Vercel은 serverless 환경이라 WebSocket 서버를 호스팅할 수 없습니
 websoket-demo/
 ├── app/
 │   ├── components/
-│   │   └── CollaborativeSpreadsheet.tsx  # 스프레드시트 컴포넌트
-│   ├── page.tsx                           # 메인 페이지
-│   └── layout.tsx                         # 레이아웃
-├── server.js                              # 커스텀 서버 (Socket.io + Next.js)
-└── package.json
+│   │   └── SpreadSheet/
+│   │       ├── index.tsx                    # 메인 컴포넌트 (훅 조합)
+│   │       ├── components/                  # UI 컴포넌트
+│   │       │   ├── SpreadSheetGrid.tsx         # 그리드 렌더링
+│   │       │   ├── Cells.tsx                   # 셀 컴포넌트
+│   │       │   ├── Header.tsx                  # 헤더
+│   │       │   └── ConnectionStatus.tsx        # 연결 상태 표시
+│   │       ├── hooks/                       # 커스텀 훅 (비즈니스 로직)
+│   │       │   ├── useYjsDocument.ts           # Yjs Doc 초기화
+│   │       │   ├── useWebSocketConnection.ts   # 연결 상태
+│   │       │   ├── useCollaborativeData.ts     # 데이터 동기화
+│   │       │   ├── useAwareness.ts             # 사용자 Awareness
+│   │       │   └── useCellEvents.ts            # 셀 이벤트
+│   │       ├── types/
+│   │       │   └── index.ts                # TypeScript 타입
+│   │       ├── constants/
+│   │       │   └── index.ts                # 상수 정의
+│   │       └── utils/
+│   │           └── index.ts                # 유틸리티 함수
+│   ├── page.tsx                            # 메인 페이지
+│   └── layout.tsx                          # 레이아웃
+│
+├── websocket-server.js                     # WebSocket 서버 (ws + y-protocols)
+├── package.json
+├── railway.json                            # Railway 배포 설정
+├── nixpacks.toml                           # Nixpacks 빌드 설정
+└── README.md
 ```
 
-## 🎯 테스트 방법
+### 🏗️ 아키텍처 설계 원칙
 
-1. 여러 브라우저 탭을 열어서 `http://localhost:3000` 접속
-2. 각 탭에서 셀을 동시에 편집
-3. 변경사항이 모든 탭에 실시간으로 반영되는 것을 확인
+**관심사의 분리 (Separation of Concerns)**
 
-## 🔧 커스터마이징
+- **UI 컴포넌트**: 렌더링만 담당 (순수 프레젠테이션)
+- **커스텀 훅**: 비즈니스 로직 분리 (재사용 가능)
+- **타입/상수**: 중앙 집중식 관리
 
-### 그리드 크기 변경
+**각 훅의 책임**
 
-`app/components/CollaborativeSpreadsheet.tsx`에서 상수를 수정하세요:
-
-```typescript
-const ROWS = 20; // 행 개수
-const COLS = 10; // 열 개수
-```
-
-### 문서 ID 변경
-
-여러 독립적인 스프레드시트를 만들려면:
-
-```typescript
-const documentId = 'your-unique-document-id';
-```
+| 훅                       | 책임                       |
+| ------------------------ | -------------------------- |
+| `useYjsDocument`         | Yjs Doc 및 Provider 초기화 |
+| `useWebSocketConnection` | 연결 상태 추적             |
+| `useCollaborativeData`   | 셀 데이터 동기화           |
+| `useAwareness`           | 사용자 편집 상태 관리      |
+| `useCellEvents`          | 셀 선택 및 포커스 이벤트   |
 
 ## 🎨 주요 기능 상세
 
@@ -149,45 +181,8 @@ const documentId = 'your-unique-document-id';
 - **색상 구분**: 각 사용자는 10가지 색상 중 하나를 랜덤으로 할당받습니다
 - **실시간 업데이트**: 사용자가 셀을 포커스하거나 해제하면 즉시 다른 사용자에게 전달됩니다
 
-### Yjs CRDT의 장점
-
-- **자동 충돌 해결**: 여러 사용자가 동시에 편집해도 데이터 일관성 유지
-- **오프라인 지원**: 네트워크가 끊겨도 로컬에서 작업 가능
-- **효율적인 동기화**: 변경된 부분만 전송하여 대역폭 최소화
-
-## 📝 다음 단계
-
-이 데모를 확장할 수 있는 방법:
-
-- 📊 셀 포맷팅 (굵게, 색상 등)
-- 🧮 수식 계산 지원
-- 💾 데이터베이스에 영구 저장
-- 📱 모바일 반응형 디자인
-- 🔐 인증 및 권한 관리
-- 📤 내보내기/가져오기 기능 (CSV, Excel)
-- 👥 사용자 프로필 및 아바타
-- 💬 채팅 기능
-
-## 🐛 문제 해결
-
-### 연결이 안 되는 경우
-
-1. 서버가 실행 중인지 확인: `http://localhost:3000`
-2. 방화벽이 포트 3000을 차단하지 않는지 확인
-3. 브라우저 콘솔에서 에러 메시지 확인
-
-### 동기화가 안 되는 경우
-
-1. 브라우저 콘솔에서 "Connected to server" 메시지 확인
-2. 페이지를 새로고침하여 재연결 시도
-3. 서버 로그에서 에러 확인
-
 ## 📚 참고 자료
 
 - [Yjs 공식 문서](https://docs.yjs.dev/)
-- [Socket.io 공식 문서](https://socket.io/docs/v4/)
-- [Next.js 공식 문서](https://nextjs.org/docs)
-
-## 📄 라이선스
-
-MIT
+- [Yjs 아키텍처 개선 과정](https://growth-coder.tistory.com/362)
+- [WebSocket 개념 및 활용](https://www.jaenung.net/tree/open/34445)
