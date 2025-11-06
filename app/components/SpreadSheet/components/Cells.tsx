@@ -29,7 +29,6 @@ export default function Cell({
   editingUser,
 }: CellProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const cellRef = useRef<HTMLDivElement>(null);
   const [localValue, setLocalValue] = useState(value);
 
   // value prop이 변경되면 localValue 업데이트
@@ -79,7 +78,6 @@ export default function Cell({
 
   return (
     <div
-      ref={cellRef}
       className={`
         w-24 h-8 border-r border-b border-gray-300 flex items-center
         shrink-0 relative cursor-cell focus:outline-none hover:bg-gray-50
