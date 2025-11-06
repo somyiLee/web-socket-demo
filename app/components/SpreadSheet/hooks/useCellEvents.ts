@@ -1,24 +1,31 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState, MutableRefObject } from 'react';
 import { WebsocketProvider } from 'y-websocket';
 
-export const useCellEvents = () => {
-  const awarenessRef = useRef<WebsocketProvider['awareness'] | null>(null);
+/**
+ * 셀 선택 및 포커스 이벤트를 관리하는 훅
+ */
+export const useCellEvents = (
+  awarenessRef: MutableRefObject<WebsocketProvider['awareness'] | null>
+) => {
   const [selectedCell, setSelectedCell] = useState<string | null>(null);
 
   // 셀 선택
-  const handleCellClick = useCallback((cellKey: string) => {
-    setSelectedCell(cellKey);
+  const handleCellClick = useCallback(
+    (cellKey: string) => {
+      setSelectedCell(cellKey);
 
-    // Awareness 상태 업데이트 (다른 사용자들에게 내가 편집 중인 셀 알림)
-    const awareness = awarenessRef.current;
-    if (awareness) {
-      const currentState = awareness.getLocalState();
-      awareness.setLocalState({
-        ...currentState,
-        cellKey: cellKey,
-      });
-    }
-  }, []);
+      // Awareness 상태 업데이트 (다른 사용자들에게 내가 편집 중인 셀 알림)
+      const awareness = awarenessRef.current;
+      if (awareness) {
+        const currentState = awareness.getLocalState();
+        awareness.setLocalState({
+          ...currentState,
+          cellKey: cellKey,
+        });
+      }
+    },
+    [awarenessRef]
+  );
 
   // 셀 선택 해제
   const handleCellBlur = useCallback(() => {
@@ -33,7 +40,7 @@ export const useCellEvents = () => {
         cellKey: null,
       });
     }
-  }, []);
+  }, [awarenessRef]);
 
-  return { awarenessRef, selectedCell, handleCellClick, handleCellBlur };
+  return { selectedCell, handleCellClick, handleCellBlur };
 };
